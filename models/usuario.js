@@ -1,6 +1,7 @@
+
 const { Schema, model } = require('mongoose');
 
-const UsuarioSchema = Schema({
+const UsuarioSchema = new Schema({
   nombre: {
     type: String,
     required: true
@@ -16,7 +17,8 @@ const UsuarioSchema = Schema({
   },
    online: {
     type: Boolean,
-    default: false,    
+    default: false,
+    require 
   },
 })
 

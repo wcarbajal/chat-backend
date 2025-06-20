@@ -1,6 +1,7 @@
+
 const { Schema, model } = require('mongoose');
 
-const MensajeSchema = Schema({
+const MensajeSchema =new Schema({
   de: {
     type: Schema.Types.ObjectId,
     ref: 'Usuario',

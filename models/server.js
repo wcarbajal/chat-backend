@@ -13,53 +13,55 @@ const { dbConnection } = require( '../database/config' );
 
 class Server {
 
-  constructor() {
+   constructor() {
 
-    this.app = express();
-    this.port = process.env.PORT;
+      this.app = express();
+      this.port = process.env.PORT;
 
-    // Conectar a DB
+      // Conectar a DB
 
-    dbConnection();
+      dbConnection();
 
-    // Http server
-    this.server = http.createServer( this.app );
+      // Http server
+      this.server = http.createServer( this.app );
 
-    // Configuraciones de sockets
-    this.io = socketio( this.server, { /* configuraciones */ } );
-  }
+      // Configuraciones de sockets
+      this.io = socketio( this.server, { /* configuraciones */ } );
+   }
 
-  middlewares() {
-    // Desplegar el directorio público
-    this.app.use( express.static( path.resolve( __dirname, '../public' ) ) );
-    
-    // todo: CORS
-   // this.app.use( cors );
+   middlewares() {
+      // Desplegar el directorio público
+      this.app.use( express.static( path.resolve( __dirname, '../public' ) ) );
 
-    //Api ENDPoint
+      // todo: CORS
+      this.app.use( cors() );
 
-    this.app.use( '/api/login', require('../router/auth') );
-  }
+      // Parseo del body
+      this.app.use( express.json() );
 
-  // Esta configuración se puede tener aquí o como propieda de clase
-  // depende mucho de lo que necesites
-  configurarSockets() {
-    new Sockets( this.io );
-  }
+      //Api ENDPoint
+      this.app.use( '/api/login', require( '../router/auth' ) );
+   }
 
-  execute() {
+   // Esta configuración se puede tener aquí o como propieda de clase
+   // depende mucho de lo que necesites
+   configurarSockets() {
+      new Sockets( this.io );
+   }
 
-    // Inicializar Middlewares
-    this.middlewares();
+   execute() {
 
-    // Inicializar sockets
-    this.configurarSockets();
+      // Inicializar Middlewares
+      this.middlewares();
 
-    // Inicializar Server
-    this.server.listen( this.port, () => {
-      console.log( 'Server corriendo en puerto:', this.port );
-    } );
-  }
+      // Inicializar sockets
+      this.configurarSockets();
+
+      // Inicializar Server
+      this.server.listen( this.port, () => {
+         console.log( 'Server corriendo en puerto:', this.port );
+      } );
+   }
 
 }
 
