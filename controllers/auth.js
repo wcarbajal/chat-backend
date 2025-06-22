@@ -1,41 +1,44 @@
 const { response } = require( 'express' );
-const bcrypt = require('bcryptjs');
-const Usuario = require('../models/usuario');
+const bcrypt = require( 'bcryptjs' );
+const Usuario = require( '../models/usuario' );
+const { generarJWT } = require( '../helpers/generar-jwt' );
 
 
 const crearUsuario = async ( req, res = response ) => {
 
   try {
 
-    const  {nombre, email, password} = req.body;
+    const { nombre, email, password } = req.body;
 
     //verificar que el email no exista en base de datos
-    const existeEmail = await Usuario.findOne({ email })
+    const existeEmail = await Usuario.findOne( { email } );
 
-    if( existeEmail ){
-      return res.status(400).json({
+    if ( existeEmail ) {
+      return res.status( 400 ).json( {
         ok: false,
         msg: 'El correo ya existe'
-      })
+      } );
 
     }
-    
+
     const usuario = new Usuario( req.body );
 
     // encriptar contraseña
 
     const salt = bcrypt.genSaltSync();
-    usuario.password = bcrypt.hashSync( password, salt)    
+    usuario.password = bcrypt.hashSync( password, salt );
 
     // Guardar en base de datos
-
     await usuario.save();
 
+    //generar JWT
+    const token = await generarJWT( usuario.id );
 
-
-    res.json({
-      usuario
-    })
+    res.json( {
+      ok: true,
+      usuario,
+      token
+    } );
 
   } catch ( error ) {
     console.log( error );
@@ -50,27 +53,80 @@ const login = async ( req, res ) => {
 
   const { email, password } = req.body;
 
-  res.json( {
-    ok: true,
-    mesg: 'login',
-    email,
-    password
-  } );
+  try {
+    // verificar email
+    const usuarioDB = await Usuario.findOne( { email } );
+
+    //verificar si existe el correo
+
+    if ( !usuarioDB ) {
+      return res.status( 404 ).json( {
+        ok: false,
+        msg: 'El correo no existe'
+      } );
+    }
+    //validar pasword
+    const validPassword = bcrypt.compareSync( password, usuarioDB.password );
+
+    if ( !validPassword ) {
+      return res.status( 400 ).json( {
+        ok: false,
+        msg: 'Contraseña incorrecta'
+      } );
+    }
+
+    // generar JWT
+    const token = await generarJWT( usuarioDB.id );
+
+    res.json( {
+      ok: true,
+      usuarioDB,
+      token
+    } );
+
+
+
+
+  } catch ( error ) {
+    console.log( error );
+    res.status( 500 ).json( {
+      ok: false,
+      msg: 'hable con el admin'
+    } );
+
+  }
+
+
 };
 
 const renewToken = async ( req, res ) => {
 
+//obtener uid del usuario
+  const uid = req.uid;
+
+  //generar un nuevo JWT
+  const token = await generarJWT( uid );
+
+  const usuario = await Usuario.findById( uid );
+
+
+
   res.json( {
     ok: true,
-    usuario: 'renew'
+    uid,
+    usuario,
+    token
   } );
 };
+
+
 
 
 module.exports = {
 
   crearUsuario,
   login,
-  renewToken
+  renewToken,
+  
 
 };
