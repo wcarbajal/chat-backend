@@ -25,6 +25,8 @@ class Sockets {
       await usuarioConectado( uid );
 
 
+
+
       //TODO: Validar JWT
       //Si el token no es válido, desconectar el socket
 
@@ -42,24 +44,16 @@ class Sockets {
 
       //TODO: Disconnect - Marca en la BD que el usuario se desconecto
 
-      socket.on( 'disconnect', async ( socket ) => {
+      socket.on( 'disconnect', async () => {
 
-        const [ valido, uid ] = comprobarJWT( socket.handshake.query[ 'x-token' ] );
-        console.log( valido, uid );
-        if ( !valido ) {
-          console.log( 'socket no identificado' );
-          return socket.disconnect();
-        }
+        /*   const [ valido, uid ] = comprobarJWT( socket.handshake.query[ 'x-token' ] );
+          
+          if ( !valido ) {
+            console.log( 'socket no identificado' );
+            return ;
+          }   */
 
-        if ( !mongoose.Types.ObjectId.isValid( uid ) ) {
-          console.log( 'UID no válido:', uid );
-          return socket.disconnect();
-        }
-
-        await usuarioConectado( uid );
-
-
-
+        await usuarioDesconectado( uid );
 
       } );
 
