@@ -23,6 +23,8 @@ class Sockets {
       }
 
       await usuarioConectado( uid );
+      //crear una nueva conecion
+      
 
 
 
