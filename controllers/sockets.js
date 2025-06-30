@@ -22,7 +22,17 @@ return usuario;
 
 }
 
+const getUsuarios = async() => {
+  const usuarios = await Usuario.find().sort({
+    online: 'descending'
+  })
+  ;
+  return usuarios
+
+}
+
 module.exports = {
   usuarioConectado,
-  usuarioDesconectado
+  usuarioDesconectado,
+  getUsuarios
 }

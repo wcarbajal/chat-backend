@@ -1,4 +1,4 @@
-const { usuarioConectado, usuarioDesconectado } = require( '../controllers/sockets' );
+const { usuarioConectado, usuarioDesconectado, getUsuarios } = require( '../controllers/sockets' );
 const { comprobarJWT } = require( '../helpers/jwt' );
 
 
@@ -35,6 +35,7 @@ class Sockets {
 
 
       //TODO: Emitir todos los usuario
+      this.io.emit('lista-usuarios', await getUsuarios() )
 
 
       //TODO: socker join
@@ -46,14 +47,9 @@ class Sockets {
 
       socket.on( 'disconnect', async () => {
 
-        /*   const [ valido, uid ] = comprobarJWT( socket.handshake.query[ 'x-token' ] );
-          
-          if ( !valido ) {
-            console.log( 'socket no identificado' );
-            return ;
-          }   */
-
         await usuarioDesconectado( uid );
+         this.io.emit('lista-usuarios', await getUsuarios() )
+
 
       } );
 
